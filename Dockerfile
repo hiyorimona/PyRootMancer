@@ -21,7 +21,11 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 
 USER appuser
 
-COPY  ./src ./src
+COPY pyproject.toml poetry.lock ./
+
+RUN poetry install --no-root
+
+COPY..
 
 EXPOSE 8000
 
