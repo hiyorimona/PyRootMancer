@@ -9,6 +9,8 @@ on:
 
 env:
   IMAGE_NAME: pyrootmancer-image
+  IMAGE_ID: ${{ secrets.DOCKERHUB_USERNAME }}/pyrootmancer-image
+
 
 jobs:
   SetUp-Python:
@@ -101,21 +103,25 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
+
+      - name: DockerHub login
+        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
       - name: Build image
         run: docker build . --file Dockerfile --tag $IMAGE_NAME --label "runnumber=${GITHUB_RUN_ID}"
-      - name: Log in to registry
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin |
-          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$IMAGE_NAME
-          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
 
-          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
-          
-          [ "$VERSION" == "main" ] && VERSION=latest
-          echo IMAGE_ID=$IMAGE_ID
-          echo VERSION=$VERSION
+      - name: Tag Push image
+        env:
+          IMAGE_NAME: pyrootmancer-image # Replace with your image name
+          IMAGE_ID: ${{ secrets.DOCKERHUB_USERNAME }}/pyrootmancer-image # Replace with your image name
+        run: |
+          VERSION=$(echo "${GITHUB_REF##*/}" | sed -e 's/^v//')
+          if [[ "$GITHUB_REF" == "refs/heads/main" ]]; then
+            VERSION="latest"
+          fi
           docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
+
   build-and-publish:
     if: github.event_name == 'push' && github.event.head_commit.modified && contains(github.event.head_commit.modified, 'src/pyrootmancer')
     runs-on: ubuntu-latest
