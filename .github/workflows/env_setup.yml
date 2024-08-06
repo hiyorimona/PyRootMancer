@@ -5,11 +5,34 @@ on:
     branches: [ "main", "pypi" ]
   pull_request:
     branches: [ "main", "pypi"]
+env:
+  IMAGE_NAME: ghtoken_product_demo
 
 permissions:
   contents: write
 
 jobs:
+  publish-package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build . --file Dockerfile --tag $IMAGE_NAME --label "runnumber=${GITHUB_RUN_ID}"
+      - name: Log in to registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Push image
+        run: |
+            IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$IMAGE_NAME
+            IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+            VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+            [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+            [ "$VERSION" == "main" ] && VERSION=latest
+            echo IMAGE_ID=$IMAGE_ID
+            echo VERSION=$VERSION
+            docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
+            docker push $IMAGE_ID:$VERSION
+
   setup-python:
     runs-on: ubuntu-latest
     steps:
@@ -93,7 +116,7 @@ jobs:
           compression-level: 9
       
   build-and-publish:
-    if: github.event_name == 'push' && github.event.head_commit.modified && contains(github.event.head_commit.modified, 'src/pyrootmancer')
+    if: github.event_name == 'push' && github.event.head_commit.modified && contains(github.event.head_commit.modified, 'src')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -109,7 +132,7 @@ jobs:
           bump2version patch --config-file ./pyproject.toml
       - name: Build and Publish
         run: |
-          cd src/pyrootmancer
+          cd src
           poetry build
           poetry publish --build
         env:
