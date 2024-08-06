@@ -16,6 +16,7 @@ def f1(y_true, y_pred):
         Pred_Positives = K.sum(K.round(K.clip(y_pred, 0, 1)))
         precision = TP / (Pred_Positives + K.epsilon())
         return precision
+
     precision, recall = precision_m(y_true, y_pred), recall_m(y_true, y_pred)
     return 2 * ((precision * recall) / (precision + recall + K.epsilon()))
 
@@ -26,6 +27,7 @@ def iou(y_true, y_pred):
         total = K.sum(K.square(y_true), [1, 2, 3]) + K.sum(K.square(y_pred), [1, 2, 3])
         union = total - intersection
         return (intersection + K.epsilon()) / (union + K.epsilon())
+
     return K.mean(f(y_true, y_pred), axis=-1)
 
 

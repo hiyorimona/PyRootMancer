@@ -39,9 +39,7 @@ class LandmarkExtraction:
         """
         try:
             # Get connected components and their stats
-            num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(
-                mask
-            )
+            num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(mask)
 
             # Get sizes of components (excluding the background)
             sizes = stats[1:, -1]
@@ -91,7 +89,9 @@ class LandmarkExtraction:
             logging.error(f"An error occurred: {e}")
             return np.zeros_like(mask)
 
-    def get_bottom_coordinates(self, input_folder: str, num_img: int, threshold: int = 50) -> Tuple[List[int], List[int]]:
+    def get_bottom_coordinates(
+        self, input_folder: str, num_img: int, threshold: int = 50
+    ) -> Tuple[List[int], List[int]]:
         """
         Processes and filters coordinates from the skeleton image.
 
@@ -120,35 +120,28 @@ class LandmarkExtraction:
 
             # Read and process the mask
             mask = cv2.imread(predicted_clean_paths[num_img], 0)
-            mask = segmentation.opening_closing(
-                self.remove_small_components(mask)
-            )
+            mask = segmentation.opening_closing(self.remove_small_components(mask))
 
             # Summarize the skeleton
             df = summarize(Skeleton(mask))
             filtered_df = df[
-                (df['image-coord-dst-0'] < 2415)
-                & (df['branch-type'] != 0)
-                & (df['euclidean-distance'] > 20)
+                (df['image-coord-dst-0'] < 2415) & (df['branch-type'] != 0) & (df['euclidean-distance'] > 20)
             ]
 
             # Extract and sort coordinates
             image_coord_dst_0, image_coord_dst_1 = (
-                filtered_df.sort_values(
-                    by='image-coord-dst-0', ascending=False
-                )
+                filtered_df.sort_values(by='image-coord-dst-0', ascending=False)
                 .groupby('skeleton-id', as_index=False)
-                .agg({'image-coord-dst-0': 'max', 'image-coord-dst-1': 'first'})
-                [['image-coord-dst-0', 'image-coord-dst-1']]
-                .values.T
-                .tolist())
+                .agg({'image-coord-dst-0': 'max', 'image-coord-dst-1': 'first'})[
+                    ['image-coord-dst-0', 'image-coord-dst-1']
+                ]
+                .values.T.tolist()
+            )
 
             # Pair and sort coordinates
             paired_coords = list(zip(image_coord_dst_0, image_coord_dst_1))
             paired_coords.sort(key=lambda pair: pair[0], reverse=True)
-            sorted_image_coord_dst_0, sorted_image_coord_dst_1 = zip(
-                *paired_coords
-            )
+            sorted_image_coord_dst_0, sorted_image_coord_dst_1 = zip(*paired_coords)
 
             # Convert to lists for further processing
             sorted_image_coord_dst_0 = list(sorted_image_coord_dst_0)
@@ -158,39 +151,24 @@ class LandmarkExtraction:
             indices_to_remove = set()
             for i in range(len(sorted_image_coord_dst_1)):
                 for j in range(i + 1, len(sorted_image_coord_dst_1)):
-                    if (
-                        abs(
-                            sorted_image_coord_dst_1[i]
-                            - sorted_image_coord_dst_1[j]
-                        )
-                        <= threshold
-                    ):
-                        if (
-                            sorted_image_coord_dst_0[i]
-                            < sorted_image_coord_dst_0[j]
-                        ):
+                    if abs(sorted_image_coord_dst_1[i] - sorted_image_coord_dst_1[j]) <= threshold:
+                        if sorted_image_coord_dst_0[i] < sorted_image_coord_dst_0[j]:
                             indices_to_remove.add(i)
                         else:
                             indices_to_remove.add(j)
 
             # Create new lists excluding the indices to remove
             filtered_image_coord_dst_0 = [
-                val
-                for idx, val in enumerate(sorted_image_coord_dst_0)
-                if idx not in indices_to_remove
+                val for idx, val in enumerate(sorted_image_coord_dst_0) if idx not in indices_to_remove
             ]
             filtered_image_coord_dst_1 = [
-                val
-                for idx, val in enumerate(sorted_image_coord_dst_1)
-                if idx not in indices_to_remove
+                val for idx, val in enumerate(sorted_image_coord_dst_1) if idx not in indices_to_remove
             ]
 
             # Pair and sort filtered coordinates
             paired_coords = list(zip(filtered_image_coord_dst_0[:5], filtered_image_coord_dst_1[:5]))
             paired_coords.sort(key=lambda pair: pair[1])
-            sorted_image_coord_dst_0, sorted_image_coord_dst_1 = zip(
-                *paired_coords
-            )
+            sorted_image_coord_dst_0, sorted_image_coord_dst_1 = zip(*paired_coords)
 
             return sorted_image_coord_dst_0, sorted_image_coord_dst_1
 
@@ -247,9 +225,7 @@ class LandmarkExtraction:
             image_bgr = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
             # Display the image
-            img_resized = cv2.resize(
-                image_bgr, (image_bgr.shape[1] // 5, image_bgr.shape[0] // 5)
-            )
+            img_resized = cv2.resize(image_bgr, (image_bgr.shape[1] // 5, image_bgr.shape[0] // 5))
             cv2.imshow('Image', 255 - img_resized)
             cv2.waitKey(0)
             cv2.destroyAllWindows()
@@ -258,11 +234,9 @@ class LandmarkExtraction:
 if __name__ == "__main__":
     landmarks = LandmarkExtraction()
     image_num = 1  # Define the image number to process
-    landmarks.display_root_landmarks(folder_config.get("data_predictions_clean"),
-                                     folder_config.get("test_folder"),
-                                     image_num)
-
-    y, x = landmarks.get_bottom_coordinates(
-        folder_config.get("data_predictions_clean"), image_num
+    landmarks.display_root_landmarks(
+        folder_config.get("data_predictions_clean"), folder_config.get("test_folder"), image_num
     )
+
+    y, x = landmarks.get_bottom_coordinates(folder_config.get("data_predictions_clean"), image_num)
     logging.info(f"coordinates x: {x}" f" \ncoordinates y: {y}")

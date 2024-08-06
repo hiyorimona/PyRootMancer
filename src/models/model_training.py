@@ -18,9 +18,7 @@ from src.utils.configuration import *
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 logging.getLogger('tensorflow').setLevel(logging.ERROR)
-logging.basicConfig(
-    level=logging.INFO, format='%(asctime)s - %(message)s', datefmt='%H:%M:%S'
-)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s', datefmt='%H:%M:%S')
 
 
 class ModelTraining:
@@ -41,12 +39,12 @@ class ModelTraining:
         """
         # Define U-Net model
         self.unet_model = unet_model(
-            param_config.get("input_shape"),
-            param_config.get("num_classes"),
-            param_config.get("patch_size")
+            param_config.get("input_shape"), param_config.get("num_classes"), param_config.get("patch_size")
         )
 
-    def data_generator(self, image_folder: str, mask_folder: str) -> Tuple[Iterator, Iterator, ImageDataGenerator, ImageDataGenerator]:
+    def data_generator(
+        self, image_folder: str, mask_folder: str
+    ) -> Tuple[Iterator, Iterator, ImageDataGenerator, ImageDataGenerator]:
         """
         Generate data for training and validation.
 
@@ -66,9 +64,7 @@ class ModelTraining:
             A tuple containing generators for training and validation images and masks.
         """
         # Training images
-        train_image_datagen = ImageDataGenerator(
-            validation_split=0.2, rescale=1.0 / 255
-        )
+        train_image_datagen = ImageDataGenerator(validation_split=0.2, rescale=1.0 / 255)
         train_image_generator = train_image_datagen.flow_from_directory(
             image_folder,
             target_size=(
@@ -79,7 +75,7 @@ class ModelTraining:
             class_mode=None,
             color_mode='rgb',
             seed=42,
-            subset='training'
+            subset='training',
         )
 
         # Validation images
@@ -93,17 +89,12 @@ class ModelTraining:
             class_mode=None,
             color_mode='rgb',
             seed=42,
-            subset='validation'
+            subset='validation',
         )
 
         # Check if any files are found in the image folder
-        if (
-            len(train_image_generator.filepaths) == 0
-            or len(validation_image_generator.filepaths) == 0
-        ):
-            logging.error(
-                f"No files found in {os.path.basename(image_folder)} folder."
-            )
+        if len(train_image_generator.filepaths) == 0 or len(validation_image_generator.filepaths) == 0:
+            logging.error(f"No files found in {os.path.basename(image_folder)} folder.")
             return None, None, None, None
 
         # Training masks
@@ -118,7 +109,7 @@ class ModelTraining:
             color_mode='grayscale',
             class_mode=None,
             seed=42,
-            subset='training'
+            subset='training',
         )
 
         # Validation masks
@@ -132,26 +123,17 @@ class ModelTraining:
             color_mode='grayscale',
             class_mode=None,
             seed=42,
-            subset='validation'
+            subset='validation',
         )
 
         # Check if any files are found in the mask folder
-        if (
-            len(train_mask_generator.filepaths) == 0
-            or len(validation_mask_generator.filepaths) == 0
-        ):
-            logging.error(
-                f"No files found in {os.path.basename(mask_folder)} folder."
-            )
+        if len(train_mask_generator.filepaths) == 0 or len(validation_mask_generator.filepaths) == 0:
+            logging.error(f"No files found in {os.path.basename(mask_folder)} folder.")
             return None, None, None, None
 
         # Create data generators
-        train_generator = self.custom_data_generator(
-            train_image_generator, train_mask_generator
-        )
-        validation_generator = self.custom_data_generator(
-            validation_image_generator, validation_mask_generator
-        )
+        train_generator = self.custom_data_generator(train_image_generator, train_mask_generator)
+        validation_generator = self.custom_data_generator(validation_image_generator, validation_mask_generator)
 
         return (
             train_generator,
@@ -183,9 +165,7 @@ class ModelTraining:
 
                 # Check if image_batch and mask_batch have different shapes
                 if image_batch.shape[:2] != mask_batch.shape[:2]:
-                    logging.error(
-                        "Image batch and mask batch have different shapes."
-                    )
+                    logging.error("Image batch and mask batch have different shapes.")
                     continue
 
                 yield image_batch, mask_batch
@@ -225,8 +205,9 @@ class ModelTraining:
             The trained model.
         """
         try:
-            train_generator, validation_generator, train_image_generator, validation_image_generator = self.data_generator(
-                image_folder, mask_folder)
+            train_generator, validation_generator, train_image_generator, validation_image_generator = (
+                self.data_generator(image_folder, mask_folder)
+            )
 
             if None in (train_generator, validation_generator, train_image_generator, validation_image_generator):
                 logging.error("One or more generators are None. Training cannot proceed.")
@@ -242,7 +223,7 @@ class ModelTraining:
                     validation_data=validation_generator,
                     validation_steps=validation_image_generator.samples // 16,
                     epochs=epochs,
-                    callbacks=[early_stopping, model_checkpoint]
+                    callbacks=[early_stopping, model_checkpoint],
                 )
 
                 return self.unet_model
@@ -311,7 +292,7 @@ class ModelTraining:
         image = cv2.imread(image_path)
         if image.shape[:2] != (2731, 2752):
             normalized_image = cv2.normalize(
-                image[75: image.shape[0] - 200, 750: image.shape[1] - 700],
+                image[75 : image.shape[0] - 200, 750 : image.shape[1] - 700],
                 None,
                 0,
                 255,
@@ -339,8 +320,9 @@ class ModelTraining:
 
         # Unpatchify to get the final predicted mask
         predicted_mask = unpatchify(preds, (padded_img.shape[0], padded_img.shape[1]))
-        cv2.imwrite(os.path.join(output_folder,
-                    f"{os.path.basename(image_path)[:-4]}_predicted_root.png"), predicted_mask)
+        cv2.imwrite(
+            os.path.join(output_folder, f"{os.path.basename(image_path)[:-4]}_predicted_root.png"), predicted_mask
+        )
 
         return predicted_mask
 
@@ -366,11 +348,6 @@ class ModelTraining:
         --------
         None
         """
-        test_images_paths = [
-            os.path.join(input_folder, file)
-            for file in os.listdir(input_folder)
-        ]
+        test_images_paths = [os.path.join(input_folder, file) for file in os.listdir(input_folder)]
         for image_path in test_images_paths:
-            _ = self.predict_image(
-                image_path, output_folder, models_folder, model_name
-            )
+            _ = self.predict_image(image_path, output_folder, models_folder, model_name)

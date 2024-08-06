@@ -10,9 +10,7 @@ from src.models.model_training import ModelTraining
 from src.utils.configuration import *
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
 class InstanceSegmentation:
@@ -82,30 +80,26 @@ class InstanceSegmentation:
         # Initialize model training
         modelling = ModelTraining()
         # Predict the mask for the image
-        predicted_mask = modelling.predict_image(
-            image_path, output_folder, model_folder, model_name
-        )
+        predicted_mask = modelling.predict_image(image_path, output_folder, model_folder, model_name)
 
         # Read the test image in grayscale
         test_image = cv2.imread(image_path, 0)
         # Crop the predicted mask to match the region of interest (ROI) in the test image
         im = predicted_mask[0:2816, 0:2816]
-        roi_1 = test_image[50: 2816 + 50, 720: 2816 + 720]
+        roi_1 = test_image[50 : 2816 + 50, 720 : 2816 + 720]
 
         # Resize the predicted mask to fit the ROI
-        overlay_image = (
-            resize(im, roi_1.shape, mode='reflect', anti_aliasing=True) * 255
-        ).astype(np.uint8)
+        overlay_image = (resize(im, roi_1.shape, mode='reflect', anti_aliasing=True) * 255).astype(np.uint8)
         # Create a blank image with the same shape as the test image
         modified_cropped = np.zeros_like(test_image)
 
         # Define the ROI in the blank image
-        roi = modified_cropped[50: 2816 + 50, 720: 2816 + 720]
+        roi = modified_cropped[50 : 2816 + 50, 720 : 2816 + 720]
         # Overlay the predicted mask onto the ROI
         result = cv2.addWeighted(roi, 1, overlay_image, 0.7, 0)
 
         # Place the result back into the blank image
-        modified_cropped[50: 2816 + 50, 720: 2816 + 720] = result
+        modified_cropped[50 : 2816 + 50, 720 : 2816 + 720] = result
         # Normalize the modified image
         norm = cv2.normalize(modified_cropped, None, 0, 255, cv2.NORM_MINMAX)
 
@@ -116,13 +110,9 @@ class InstanceSegmentation:
         overlay_img_red[:, :, 2] = norm
 
         # Blend the base image and the overlay image
-        blended_img = cv2.addWeighted(
-            base_img_colored, 0.45, overlay_img_red, 1 - 0.45, 0
-        )
+        blended_img = cv2.addWeighted(base_img_colored, 0.45, overlay_img_red, 1 - 0.45, 0)
         # Resize the blended image for display
-        img_resized = cv2.resize(
-            blended_img, (blended_img.shape[1] // 5, blended_img.shape[0] // 5)
-        )
+        img_resized = cv2.resize(blended_img, (blended_img.shape[1] // 5, blended_img.shape[0] // 5))
 
         # Display the final image
         cv2.imshow('Image', 255 - img_resized)
@@ -131,9 +121,7 @@ class InstanceSegmentation:
 
         return blended_img
 
-    def return_original_size_image(
-        self, image_path: str, output_folder: str
-    ) -> np.array:
+    def return_original_size_image(self, image_path: str, output_folder: str) -> np.array:
         """
         Resizes predicted masks to match the size of the original images and overlays them.
 
@@ -160,34 +148,28 @@ class InstanceSegmentation:
         predicted_mask = cv2.imread(image_path, 0)
         # Crop the predicted mask to match the region of interest (ROI)
         im = predicted_mask[0:2816, 0:2816]
-        roi_1 = original_image[50: 2816 + 50, 720: 2816 + 720]
+        roi_1 = original_image[50 : 2816 + 50, 720 : 2816 + 720]
 
         # Resize the predicted mask to fit the ROI
-        overlay_image = (
-            resize(im, roi_1.shape, mode='reflect', anti_aliasing=True) * 255
-        ).astype(np.uint8)
+        overlay_image = (resize(im, roi_1.shape, mode='reflect', anti_aliasing=True) * 255).astype(np.uint8)
         # Create a blank image with the same shape as the original image
         modified_cropped = np.zeros_like(original_image)
 
         # Define the ROI in the blank image
-        roi = modified_cropped[50: 2816 + 50, 720: 2816 + 720]
+        roi = modified_cropped[50 : 2816 + 50, 720 : 2816 + 720]
         # Overlay the predicted mask onto the ROI
         result = cv2.addWeighted(roi, 1, overlay_image, 0.7, 0)
 
         # Place the result back into the blank image
-        modified_cropped[50: 2816 + 50, 720: 2816 + 720] = result
+        modified_cropped[50 : 2816 + 50, 720 : 2816 + 720] = result
         # Normalize the modified image
         norm = cv2.normalize(modified_cropped, None, 0, 255, cv2.NORM_MINMAX)
 
         # Save the final normalized image to the output folder
-        cv2.imwrite(
-            os.path.join(output_folder, os.path.basename(image_path)), norm
-        )
+        cv2.imwrite(os.path.join(output_folder, os.path.basename(image_path)), norm)
         return norm
 
-    def return_original_size_folder(
-        self, test_folder: str, output_folder: str
-    ) -> None:
+    def return_original_size_folder(self, test_folder: str, output_folder: str) -> None:
         """
         Resizes predicted masks to match the size of the original images and overlays them for all images in a folder.
 
@@ -213,15 +195,12 @@ class InstanceSegmentation:
         processor.create_folders()
 
         # Get the list of test image paths
-        test_folder_path = [
-            os.path.join(test_folder, file) for file in os.listdir(test_folder)
-        ]
+        test_folder_path = [os.path.join(test_folder, file) for file in os.listdir(test_folder)]
         # Create a tqdm loop for progress tracking
         loop = tq.tqdm(
             enumerate(test_folder_path),
             total=len(test_folder_path),
-            bar_format='{l_bar}%s{bar}%s{r_bar}'
-            % ('\033[38;2;70;130;180m', '\033[0m'),
+            bar_format='{l_bar}%s{bar}%s{r_bar}' % ('\033[38;2;70;130;180m', '\033[0m'),
         )
 
         # Process each test image
