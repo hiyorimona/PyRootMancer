@@ -25,8 +25,6 @@ COPY pyproject.toml poetry.lock ./
 
 RUN poetry install --no-root
 
-COPY..
-
 EXPOSE 8000
 
 CMD gunicorn 'api:app' --bind=0.0.0.0:8000
