@@ -3,7 +3,7 @@ from unittest.mock import patch, MagicMock
 
 import numpy as np
 
-from prc.features.instance_segmentation import InstanceSegmentation
+from src.features.instance_segmentation import InstanceSegmentation
 
 
 class TestInstanceSegmentation(unittest.TestCase):
@@ -13,7 +13,7 @@ class TestInstanceSegmentation(unittest.TestCase):
     @autor: Cédric Verhaegh
     """
 
-    @patch('prc.features.instance_segmentation.DataPipelineSetup')
+    @patch('src.features.instance_segmentation.DataPipelineSetup')
     def setUp(self, MockDataPipelineSetup: MagicMock) -> None:
         """
         Set up the test case environment.
@@ -51,7 +51,7 @@ class TestInstanceSegmentation(unittest.TestCase):
     @patch('cv2.imshow')
     @patch('cv2.waitKey')
     @patch('cv2.destroyAllWindows')
-    @patch('prc.models.model_training.ModelTraining.predict_image')
+    @patch('src.models.model_training.ModelTraining.predict_image')
     def test_test_overlaying(self, mock_predict_image: MagicMock, mock_destroyAllWindows: MagicMock, mock_waitKey: MagicMock,
                              mock_imshow: MagicMock, mock_imread: MagicMock) -> None:
         """
@@ -158,11 +158,11 @@ class TestInstanceSegmentation(unittest.TestCase):
         self.assertEqual(mock_imwrite.call_count, 1)
 
     @patch(
-        'prc.features.instance_segmentation.DataPipelineSetup.create_folders'
+        'src.features.instance_segmentation.DataPipelineSetup.create_folders'
     )
     @patch('os.listdir')
     @patch(
-        'prc.features.instance_segmentation.InstanceSegmentation.return_original_size_image'
+        'src.features.instance_segmentation.InstanceSegmentation.return_original_size_image'
     )
     def test_return_original_size_folder(
         self,

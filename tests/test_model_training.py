@@ -5,13 +5,13 @@ import unittest
 from unittest.mock import patch, MagicMock, mock_open
 import numpy as np
 
-from prc.models.model_training import ModelTraining
-from prc.utils.configuration import folder_config
+from src.models.model_training import ModelTraining
+from src.utils.configuration import folder_config
 
 
 class TestModelTrain(unittest.TestCase):
 
-    @patch('prc.models.model_training.load_model')
+    @patch('src.models.model_training.load_model')
     def test_load_model(self, mock_load_model):
         modelling = ModelTraining()
         models_folder = folder_config.get("models_folder")
@@ -39,7 +39,7 @@ class TestModelTrain(unittest.TestCase):
         with self.assertRaises(FileNotFoundError):
             modelling.load_model(models_folder, model_name)
 
-    @patch('prc.models.model_training.ImageDataGenerator')
+    @patch('src.models.model_training.ImageDataGenerator')
     def test_data_generator(self, mock_image_data_generator):
         mock_datagen = MagicMock()
         mock_image_data_generator.return_value = mock_datagen
@@ -70,7 +70,7 @@ class TestModelTrain(unittest.TestCase):
             self.assertIsNotNone(train_image_generator)
             self.assertIsNotNone(validation_image_generator)
 
-    @patch('prc.models.model_training.ImageDataGenerator')
+    @patch('src.models.model_training.ImageDataGenerator')
     def test_data_generator_no_files(self, mock_image_data_generator):
         mock_datagen = MagicMock()
         mock_image_data_generator.return_value = mock_datagen
@@ -106,10 +106,10 @@ class TestModelTrain(unittest.TestCase):
         self.assertEqual(image_batch, mock_image_batch)
         self.assertEqual(mask_batch, mock_mask_batch)
 
-    @patch('prc.models.model_training.ModelCheckpoint')
-    @patch('prc.models.model_training.EarlyStopping')
-    @patch('prc.models.model_training.ModelTraining.data_generator')
-    @patch('prc.models.model_training.unet_model')
+    @patch('src.models.model_training.ModelCheckpoint')
+    @patch('src.models.model_training.EarlyStopping')
+    @patch('src.models.model_training.ModelTraining.data_generator')
+    @patch('src.models.model_training.unet_model')
     def test_training(self, mock_unet_model, mock_data_generator, mock_early_stopping, mock_model_checkpoint):
         mock_model = MagicMock()
         mock_unet_model.return_value = mock_model
@@ -138,12 +138,12 @@ class TestModelTrain(unittest.TestCase):
             self.assertTrue(mock_early_stopping.called)
             self.assertTrue(mock_model.fit.called)
 
-    @patch('prc.models.model_training.ModelTraining.load_model')
-    @patch('prc.models.model_training.cv2.imread')
-    @patch('prc.models.model_training.cv2.imwrite')
-    @patch('prc.models.model_training.DataPipelineSetup.padder')
-    @patch('prc.models.model_training.patchify')
-    @patch('prc.models.model_training.unpatchify')
+    @patch('src.models.model_training.ModelTraining.load_model')
+    @patch('src.models.model_training.cv2.imread')
+    @patch('src.models.model_training.cv2.imwrite')
+    @patch('src.models.model_training.DataPipelineSetup.padder')
+    @patch('src.models.model_training.patchify')
+    @patch('src.models.model_training.unpatchify')
     def test_predict_image(self, mock_unpatchify, mock_patchify, mock_padder, mock_imwrite, mock_imread, mock_load_model):
         modelling = ModelTraining()
 
@@ -178,7 +178,7 @@ class TestModelTrain(unittest.TestCase):
             self.assertTrue(mock_unpatchify.called)
             self.assertTrue(mock_imwrite.called)
 
-    @patch('prc.models.model_training.ModelTraining.predict_image')
+    @patch('src.models.model_training.ModelTraining.predict_image')
     def test_predict_folder(self, mock_predict_image):
         modelling = ModelTraining()
 

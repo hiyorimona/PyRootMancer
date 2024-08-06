@@ -5,13 +5,13 @@ import numpy as np
 import os
 import shutil
 
-from prc.utils.configuration import folder_config, param_config
-from prc.data.data_preprocessing import DataPipelineSetup
+from src.utils.configuration import folder_config, param_config
+from src.data.data_preprocessing import DataPipelineSetup
 
 
 class TestDataPipelineSetup(unittest.TestCase):
 
-    @patch('prc.data.data_preprocessing.os.makedirs')
+    @patch('src.data.data_preprocessing.os.makedirs')
     def test_create_folders(self, mock_makedirs):
         processor = DataPipelineSetup()
         processor.create_folders()
@@ -20,10 +20,10 @@ class TestDataPipelineSetup(unittest.TestCase):
         ]
         mock_makedirs.assert_has_calls(expected_calls, any_order=True)
 
-    @patch('prc.data.data_preprocessing.os.scandir')
-    @patch('prc.data.data_preprocessing.ZipFile')
-    @patch('prc.data.data_preprocessing.logging.warning')
-    @patch('prc.data.data_preprocessing.logging.info')
+    @patch('src.data.data_preprocessing.os.scandir')
+    @patch('src.data.data_preprocessing.ZipFile')
+    @patch('src.data.data_preprocessing.logging.warning')
+    @patch('src.data.data_preprocessing.logging.info')
     def test_unzip_existing_files(self, mock_info, mock_warning, mock_zipfile, mock_scandir):
         processor = DataPipelineSetup()
         mock_scandir.return_value = [MagicMock(is_file=MagicMock(return_value=True))]
@@ -34,15 +34,15 @@ class TestDataPipelineSetup(unittest.TestCase):
         mock_zipfile.assert_not_called()
         mock_info.assert_not_called()
 
-    @patch('prc.data.data_preprocessing.os.rename')
-    @patch('prc.data.data_preprocessing.shutil.rmtree')
-    @patch('prc.data.data_preprocessing.os.scandir', return_value=[])
-    @patch('prc.data.data_preprocessing.os.walk', return_value=[('root', [], ['file1.jpg', 'file2.jpg'])])
-    @patch('prc.data.data_preprocessing.ZipFile')
-    @patch('prc.data.data_preprocessing.logging.info')
+    @patch('src.data.data_preprocessing.os.rename')
+    @patch('src.data.data_preprocessing.shutil.rmtree')
+    @patch('src.data.data_preprocessing.os.scandir', return_value=[])
+    @patch('src.data.data_preprocessing.os.walk', return_value=[('root', [], ['file1.jpg', 'file2.jpg'])])
+    @patch('src.data.data_preprocessing.ZipFile')
+    @patch('src.data.data_preprocessing.logging.info')
     def test_unzip_train(self, mock_info, mock_zipfile, mock_walk, mock_scandir, mock_rmtree, mock_rename):
         processor = DataPipelineSetup()
-        with patch('prc.data.data_preprocessing.os.makedirs'):
+        with patch('src.data.data_preprocessing.os.makedirs'):
             processor.unzip(keyword="train")
             mock_zipfile.assert_called_once_with(
                 os.path.join(folder_config.get("raw_data_folder"), "train.zip"), 'r'
@@ -56,15 +56,15 @@ class TestDataPipelineSetup(unittest.TestCase):
             ]
             mock_info.assert_has_calls(expected_info_calls)
 
-    @patch('prc.data.data_preprocessing.os.rename')
-    @patch('prc.data.data_preprocessing.shutil.rmtree')
-    @patch('prc.data.data_preprocessing.os.scandir', return_value=[])
-    @patch('prc.data.data_preprocessing.os.walk', return_value=[('root', [], ['root_mask1.tiff', 'shoot_mask1.tif'])])
-    @patch('prc.data.data_preprocessing.ZipFile')
-    @patch('prc.data.data_preprocessing.logging.info')
+    @patch('src.data.data_preprocessing.os.rename')
+    @patch('src.data.data_preprocessing.shutil.rmtree')
+    @patch('src.data.data_preprocessing.os.scandir', return_value=[])
+    @patch('src.data.data_preprocessing.os.walk', return_value=[('root', [], ['root_mask1.tiff', 'shoot_mask1.tif'])])
+    @patch('src.data.data_preprocessing.ZipFile')
+    @patch('src.data.data_preprocessing.logging.info')
     def test_unzip_masks(self, mock_info, mock_zipfile, mock_walk, mock_scandir, mock_rmtree, mock_rename):
         processor = DataPipelineSetup()
-        with patch('prc.data.data_preprocessing.os.makedirs'):
+        with patch('src.data.data_preprocessing.os.makedirs'):
             processor.unzip(keyword="masks")
             mock_zipfile.assert_called_once_with(
                 os.path.join(folder_config.get("raw_data_folder"), "masks.zip"), 'r'
@@ -79,15 +79,15 @@ class TestDataPipelineSetup(unittest.TestCase):
             ]
             mock_info.assert_has_calls(expected_info_calls)
 
-    @patch('prc.data.data_preprocessing.os.rename')
-    @patch('prc.data.data_preprocessing.shutil.rmtree')
-    @patch('prc.data.data_preprocessing.os.scandir', return_value=[])
-    @patch('prc.data.data_preprocessing.os.walk', return_value=[('root', [], ['file1.jpg', 'file2.jpg'])])
-    @patch('prc.data.data_preprocessing.ZipFile')
-    @patch('prc.data.data_preprocessing.logging.info')
+    @patch('src.data.data_preprocessing.os.rename')
+    @patch('src.data.data_preprocessing.shutil.rmtree')
+    @patch('src.data.data_preprocessing.os.scandir', return_value=[])
+    @patch('src.data.data_preprocessing.os.walk', return_value=[('root', [], ['file1.jpg', 'file2.jpg'])])
+    @patch('src.data.data_preprocessing.ZipFile')
+    @patch('src.data.data_preprocessing.logging.info')
     def test_unzip_test(self, mock_info, mock_zipfile, mock_walk, mock_scandir, mock_rmtree, mock_rename):
         processor = DataPipelineSetup()
-        with patch('prc.data.data_preprocessing.os.makedirs'):
+        with patch('src.data.data_preprocessing.os.makedirs'):
             processor.unzip(keyword="test")
             mock_zipfile.assert_called_once_with(
                 os.path.join(folder_config.get("raw_data_folder"), "test.zip"), 'r'
@@ -102,12 +102,12 @@ class TestDataPipelineSetup(unittest.TestCase):
             mock_info.assert_has_calls(expected_info_calls)
             mock_rmtree.assert_called_once_with("test")
 
-    @patch('prc.data.data_preprocessing.os.listdir')
-    @patch('prc.data.data_preprocessing.cv2.imread')
-    @patch('prc.data.data_preprocessing.cv2.imwrite')
-    @patch('prc.data.data_preprocessing.tq.tqdm')
-    @patch('prc.data.data_preprocessing.logging.error')
-    @patch('prc.data.data_preprocessing.logging.info')
+    @patch('src.data.data_preprocessing.os.listdir')
+    @patch('src.data.data_preprocessing.cv2.imread')
+    @patch('src.data.data_preprocessing.cv2.imwrite')
+    @patch('src.data.data_preprocessing.tq.tqdm')
+    @patch('src.data.data_preprocessing.logging.error')
+    @patch('src.data.data_preprocessing.logging.info')
     def test_crop(self, mock_info, mock_error, mock_tqdm, mock_imwrite, mock_imread, mock_listdir):
         processor = DataPipelineSetup()
         folder = folder_config.get("test_folder")
@@ -138,7 +138,7 @@ class TestDataPipelineSetup(unittest.TestCase):
         # Assert imwrite was called with the correct file paths and processed images
         mock_imwrite.assert_called()
 
-    @patch('prc.data.data_preprocessing.cv2.copyMakeBorder')
+    @patch('src.data.data_preprocessing.cv2.copyMakeBorder')
     def test_padder(self, mock_copyMakeBorder):
         processor = DataPipelineSetup()
         patch_size = param_config.get("patch_size")
@@ -174,11 +174,11 @@ class TestDataPipelineSetup(unittest.TestCase):
 
         self.assertTrue(np.array_equal(padded_image, expected_padded_image))
 
-    @patch('prc.data.data_preprocessing.os.listdir')
-    @patch('prc.data.data_preprocessing.cv2.imread')
-    @patch('prc.data.data_preprocessing.cv2.imwrite')
-    @patch('prc.data.data_preprocessing.patchify')
-    @patch('prc.data.data_preprocessing.DataPipelineSetup.padder')
+    @patch('src.data.data_preprocessing.os.listdir')
+    @patch('src.data.data_preprocessing.cv2.imread')
+    @patch('src.data.data_preprocessing.cv2.imwrite')
+    @patch('src.data.data_preprocessing.patchify')
+    @patch('src.data.data_preprocessing.DataPipelineSetup.padder')
     def test_img_patchify(self, mock_padder, mock_patchify, mock_imwrite, mock_imread, mock_listdir):
         # Setup mock return values
         mock_listdir.return_value = ['image1.tif', 'image2.png']

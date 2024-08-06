@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import patch
-from prc.utils.configuration import get_project_root, base_folder
+from src.utils.configuration import get_project_root, base_folder
 
 
 class TestGetProjectRoot(unittest.TestCase):

@@ -2,12 +2,12 @@ import unittest
 from unittest.mock import patch, MagicMock
 import numpy as np
 import pandas as pd
-from prc.features.root_length import RootLengthCalculator
+from src.features.root_length import RootLengthCalculator
 
 
 class TestRootLengthCalculator(unittest.TestCase):
 
-    @patch('prc.features.root_length.tf.keras.models.load_model')
+    @patch('src.features.root_length.tf.keras.models.load_model')
     def setUp(self, mock_load_model):
         # Mocking the loaded model
         self.mock_model = MagicMock()
@@ -32,8 +32,8 @@ class TestRootLengthCalculator(unittest.TestCase):
         # Check if the predicted mask has the correct shape
         self.assertEqual(predicted_mask.shape, (500, 500))
 
-    @patch('prc.features.root_length.os.listdir')
-    @patch('prc.features.root_length.cv2.imread')
+    @patch('src.features.root_length.os.listdir')
+    @patch('src.features.root_length.cv2.imread')
     def test_process_images(self, mock_imread, mock_listdir):
         # Mock the list of files in the directory
         mock_listdir.return_value = ['test_image.tif']
@@ -79,8 +79,8 @@ class TestRootLengthCalculator(unittest.TestCase):
         # The length should be 100 for a horizontal line spanning the image
         self.assertEqual(length, 100)
 
-    @patch('prc.features.root_length.os.path.exists')
-    @patch('prc.features.root_length.pd.DataFrame.to_csv')
+    @patch('src.features.root_length.os.path.exists')
+    @patch('src.features.root_length.pd.DataFrame.to_csv')
     def test_save_results(self, mock_to_csv, mock_exists):
         # Mock the existence check to always return False (file doesn't exist)
         mock_exists.return_value = False
@@ -97,9 +97,9 @@ class TestRootLengthCalculator(unittest.TestCase):
         # Check if to_csv was called
         mock_to_csv.assert_called_once()
 
-    @patch('prc.features.root_length.cv2.connectedComponentsWithStats')
-    @patch('prc.features.root_length.cv2.putText')
-    @patch('prc.features.root_length.cv2.rectangle')
+    @patch('src.features.root_length.cv2.connectedComponentsWithStats')
+    @patch('src.features.root_length.cv2.putText')
+    @patch('src.features.root_length.cv2.rectangle')
     def test_analyze_image(self, mock_rectangle, mock_putText, mock_connectedComponentsWithStats):
         # Create a dummy image and predicted mask
         img = np.random.randint(0, 256, (500, 500, 3), dtype=np.uint8)
@@ -120,7 +120,7 @@ class TestRootLengthCalculator(unittest.TestCase):
         # Mock the skeletonize function
         skeletonized_image = np.zeros((50, 50), dtype=np.uint8)
         skeletonized_image[25, :] = 1  # A horizontal line
-        with patch('prc.features.root_length.skeletonize', return_value=skeletonized_image) as mock_skeletonize:
+        with patch('src.features.root_length.skeletonize', return_value=skeletonized_image) as mock_skeletonize:
             # Mock the summarize function
             summary_data = {
                 'node-id-src': [0, 1],
@@ -132,7 +132,7 @@ class TestRootLengthCalculator(unittest.TestCase):
                 'image-coord-dst-1': [25, 50],
             }
             summary_df = pd.DataFrame(summary_data)
-            with patch('prc.features.root_length.summarize', return_value=summary_df) as mock_summarize:
+            with patch('src.features.root_length.summarize', return_value=summary_df) as mock_summarize:
                 self.calculator.analyze_image('test_image.tif', img, predicted_mask)
 
                 # Check if the rectangles and text were drawn on the image

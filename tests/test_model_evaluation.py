@@ -1,4 +1,4 @@
-from prc.models.model_evaluation import f1, iou
+from src.models.model_evaluation import f1, iou
 import unittest
 import tensorflow as tf
 import numpy as np
