@@ -93,28 +93,6 @@ jobs:
           path: ./coverage/html
           compression-level: 9
 
-  build-and-publish:
-    if: github.event_name == 'push' && github.event.head_commit.modified && contains(github.event.head_commit.modified, 'src/pyrootmancer')
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v3
-        with:
-          python-version: "3.10"
-      - name: Install Poetry and Bump2version
-        run: |
-          pip install poetry bump2version
-      - name: Bump version and install dependencies
-        run: |
-          bump2version patch --config-file ./pyproject.toml
-      - name: Build and Publish
-        run: |
-          cd src/pyrootmancer
-          poetry build
-          poetry publish --build
-        env:
-          POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_API_TOKEN }}
 
   SetUp-Package:
     runs-on: ubuntu-latest
@@ -138,3 +116,25 @@ jobs:
           echo VERSION=$VERSION
           docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
+  build-and-publish:
+    if: github.event_name == 'push' && github.event.head_commit.modified && contains(github.event.head_commit.modified, 'src/pyrootmancer')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.10"
+      - name: Install Poetry and Bump2version
+        run: |
+          pip install poetry bump2version
+      - name: Bump version and install dependencies
+        run: |
+          bump2version patch --config-file ./pyproject.toml
+      - name: Build and Publish
+        run: |
+          cd src/pyrootmancer
+          poetry build
+          poetry publish --build
+        env:
+          POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_API_TOKEN }}
