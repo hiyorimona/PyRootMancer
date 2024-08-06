@@ -1,0 +1,8 @@
+
+*.tif
+*.png
+*.zip
+*.pyc
+airflow/*
+
+/PyRootMancer/.idea

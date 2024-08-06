@@ -1,0 +1,116 @@
+name: Environment Setup, Linting, Testing, and Publishing
+
+on:
+  push:
+    branches: [ "main", "pypi" ]
+  pull_request:
+    branches: [ "main", "pypi"]
+
+permissions:
+  contents: write
+
+jobs:
+  setup-python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.10"
+      - name: Cache pip
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+  lint-and-install:
+    needs: setup-python
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 pytest coverage pytest-cov 
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: Auto Lint
+        uses: wearerequired/lint-action@v2
+        with:
+          black: true
+          black_dir: src/
+          auto_fix: true
+      - name: Lint with flake8
+        run: |
+          # stop the build if there are Python syntax errors or undefined names
+          flake8 src --count --select=E9,F63,F7,F82 --show-source --statistics
+          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+          flake8 src --count --exit-zero --max-complexity=10 --max-line-length=120 --statistics
+
+  test-and-coverage:
+    needs: [setup-python]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.10"
+      - name: Cache pip
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest coverage pytest-cov
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: Run tests with coverage
+        run: |
+          export PYTHONPATH=$PYTHONPATH:$(pwd)/prc
+          pytest --cov=prc --cov-report=term-missing --cov-report=lcov tests/
+      - name: Save coverage report
+        run: |
+          mkdir -p coverage
+          coverage lcov -o ./coverage/lcov.info
+      - name: Code Coverage Report
+        uses: romeovs/lcov-reporter-action@v0.4.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          lcov-file: ./coverage/lcov.info
+      - name: Export coverage to HTML format
+        run: coverage html
+      - name: Archive code coverage results
+        uses: actions/upload-artifact@v3
+        with:
+          name: code-coverage-report
+          path: ./coverage/html
+          compression-level: 9
+      
+  build-and-publish:
+    if: github.event_name == 'push' && github.event.head_commit.modified && contains(github.event.head_commit.modified, 'src/pyrootmancer')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.10"
+      - name: Install Poetry and Bump2version
+        run: |
+          pip install poetry bump2version
+      - name: Bump version and install dependencies
+        run: |
+          bump2version patch --config-file ./pyproject.toml
+      - name: Build and Publish
+        run: |
+          cd src/pyrootmancer
+          poetry build
+          poetry publish --build
+        env:
+          POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_API_TOKEN }}

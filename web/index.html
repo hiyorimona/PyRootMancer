@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PyRootMancer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background-color: #f3f4f6;
+        }
+
+        .container {
+            margin-top: 50px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        input[type="file"] {
+            margin: 20px 0;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        .endpoint-button {
+            margin: 10px;
+        }
+
+        #outputImage {
+            margin-top: 20px;
+            max-width: 100%;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Welcome to PyRootMancer</h1>
+        <input type="file" id="fileInput" accept="image/*">
+        <div id="result"></div>
+        <button class="endpoint-button" onclick="uploadAndPredict('/predict_roots/')">Get Labels</button>
+        <button class="endpoint-button" onclick="uploadAndPredict('/predict_landmarks/')">Get Landmarks</button>
+        <img id="outputImage" src="" alt="Output Image">
+    </div>
+
+    <script>
+        async function uploadAndPredict(endpoint) {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert('Please select a file to upload.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 minutes
+
+                const response = await fetch(`http://localhost:3000${endpoint}`, {
+                    method: 'POST',
+                    body: formData,
+                    signal: controller.signal
+                });
+
+                clearTimeout(timeoutId);
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = URL.createObjectURL(blob);
+                    const outputImage = document.getElementById('outputImage');
+                    outputImage.src = url;
+                    outputImage.style.display = 'block';
+                    document.getElementById('result').textContent = `Success: ${endpoint}`;
+                } else {
+                    document.getElementById('result').textContent = `Error: ${response.statusText}`;
+                }
+            } catch (error) {
+                if (error.name === 'AbortError') {
+                    document.getElementById('result').textContent = 'Request timed out';
+                } else {
+                    console.error('Error:', error);
+                    document.getElementById('result').textContent = 'Error uploading file';
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>

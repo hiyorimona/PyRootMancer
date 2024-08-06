@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Usage Guide &mdash; PyRootMancer 0.1.5 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+    <link rel="shortcut icon" href="_static/logo.png"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=5964c245"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Features" href="modules.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html">
+            
+              <img src="_static/logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">PyRootMancer - Root Segmentation Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Usage Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#directory-structure">Directory Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#unzipping-files">Unzipping Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#feature-scaling-functions">Feature Scaling Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#landmark-extraction-functions">Landmark Extraction Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#instance-segmentation-functions">Instance Segmentation Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#conclusion">Conclusion</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Features</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PyRootMancer</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Usage Guide</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/usage.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="usage-guide">
+<span id="usage"></span><h1>Usage Guide<a class="headerlink" href="#usage-guide" title="Link to this heading"></a></h1>
+<p>This guide provides instructions on how to use the functions from the provided modules, including details on where zip files should be placed for unzipping and how to execute various functionalities.</p>
+<section id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading"></a></h2>
+<p>Ensure you have the following installed:
+- Python 3.x
+- Required libraries (numpy, pandas, cv2, skimage, etc.)</p>
+<p>Before running the scripts, ensure that the necessary zip files are placed in the correct directories.</p>
+</section>
+<section id="directory-structure">
+<h2>Directory Structure<a class="headerlink" href="#directory-structure" title="Link to this heading"></a></h2>
+<p>The directory structure should be as follows:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>project_root/
+│
+├── data/
+│   ├── predictions_clean/
+│   │   └── [zip files]
+│   ├── test/
+│   │   └── [test images]
+│   └── output/
+│
+├── scripts/
+│   ├── features/
+│   │   └── feature_scaling.py
+│   ├── data/
+│   │   └── data_preprocessing.py
+│   ├── models/
+│   │   └── model_training.py
+│   └── utils/
+│       └── configuration.py
+│
+└── main.py
+</pre></div>
+</div>
+<p>Place your zip files containing the data predictions in <code class="docutils literal notranslate"><span class="pre">data/predictions_clean/</span></code> and your test images in <code class="docutils literal notranslate"><span class="pre">data/test/</span></code>.</p>
+</section>
+<section id="unzipping-files">
+<h2>Unzipping Files<a class="headerlink" href="#unzipping-files" title="Link to this heading"></a></h2>
+<p>To unzip the files in the specified directories, ensure you have the <code class="docutils literal notranslate"><span class="pre">DataPipelineSetup</span></code> class configured to handle unzipping.</p>
+</section>
+<section id="feature-scaling-functions">
+<h2>Feature Scaling Functions<a class="headerlink" href="#feature-scaling-functions" title="Link to this heading"></a></h2>
+<p>The feature scaling functions are located in <code class="docutils literal notranslate"><span class="pre">scripts/features/feature_scaling.py</span></code>. Below are examples of how to use these functions.</p>
+<p>### Creating and Sorting DataFrame</p>
+<p><code class="docutils literal notranslate"><span class="pre">create_and_sort_dataframe(image_coord_dst_0,</span> <span class="pre">image_coord_dst_1)</span></code></p>
+<p><strong>Description:</strong> Creates a DataFrame from image coordinates and sorts it based on specified criteria.</p>
+<p><strong>Example usage:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyrootmancer.scripts.features.feature_scaling</span> <span class="kn">import</span> <span class="n">create_and_sort_dataframe</span>
+
+<span class="n">image_coord_dst_0</span> <span class="o">=</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="mi">400</span><span class="p">,</span> <span class="mi">500</span><span class="p">]</span>
+<span class="n">image_coord_dst_1</span> <span class="o">=</span> <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">250</span><span class="p">,</span> <span class="mi">350</span><span class="p">,</span> <span class="mi">450</span><span class="p">]</span>
+
+<span class="n">sorted_df</span> <span class="o">=</span> <span class="n">create_and_sort_dataframe</span><span class="p">(</span><span class="n">image_coord_dst_0</span><span class="p">,</span> <span class="n">image_coord_dst_1</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">sorted_df</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>### Getting Image Coordinates</p>
+<p><code class="docutils literal notranslate"><span class="pre">get_image_coordinates(df,</span> <span class="pre">num)</span></code></p>
+<p><strong>Description:</strong> Retrieves and scales image coordinates from a DataFrame.</p>
+<p><strong>Example usage:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">pyrootmancer.scripts.features.feature_scaling</span> <span class="kn">import</span> <span class="n">get_image_coordinates</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;X&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">250</span><span class="p">],</span> <span class="s1">&#39;Y&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">300</span><span class="p">]})</span>
+<span class="n">num</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="n">robot_position</span> <span class="o">=</span> <span class="n">get_image_coordinates</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">num</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Robot position: </span><span class="si">{</span><span class="n">robot_position</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="landmark-extraction-functions">
+<h2>Landmark Extraction Functions<a class="headerlink" href="#landmark-extraction-functions" title="Link to this heading"></a></h2>
+<p>The landmark extraction functions are located in <code class="docutils literal notranslate"><span class="pre">scripts/landmark_extraction.py</span></code>.</p>
+<p>### Opening and Closing</p>
+<p><code class="docutils literal notranslate"><span class="pre">opening_closing(img)</span></code></p>
+<p><strong>Description:</strong> Applies morphological operations to remove noise from the input image.</p>
+<p><strong>Example usage:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">cv2</span>
+<span class="kn">from</span> <span class="nn">pyrootmancer.scripts.landmark_extraction</span> <span class="kn">import</span> <span class="n">LandmarkExtraction</span>
+
+<span class="n">landmark_extractor</span> <span class="o">=</span> <span class="n">LandmarkExtraction</span><span class="p">()</span>
+<span class="n">img</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="s1">&#39;path_to_image&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">processed_img</span> <span class="o">=</span> <span class="n">landmark_extractor</span><span class="o">.</span><span class="n">opening_closing</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+<span class="n">cv2</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="s1">&#39;Processed Image&#39;</span><span class="p">,</span> <span class="n">processed_img</span><span class="p">)</span>
+<span class="n">cv2</span><span class="o">.</span><span class="n">waitKey</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">cv2</span><span class="o">.</span><span class="n">destroyAllWindows</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>### Removing Small Components</p>
+<p><code class="docutils literal notranslate"><span class="pre">remove_small_components(mask)</span></code></p>
+<p><strong>Description:</strong> Removes small connected components from the mask based on the number of labels.</p>
+<p><strong>Example usage:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">pyrootmancer.scripts.landmark_extraction</span> <span class="kn">import</span> <span class="n">LandmarkExtraction</span>
+
+<span class="n">landmark_extractor</span> <span class="o">=</span> <span class="n">LandmarkExtraction</span><span class="p">()</span>
+<span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>  <span class="c1"># Example mask</span>
+<span class="n">processed_mask</span> <span class="o">=</span> <span class="n">landmark_extractor</span><span class="o">.</span><span class="n">remove_small_components</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>### Getting Bottom Coordinates</p>
+<p><code class="docutils literal notranslate"><span class="pre">get_bottom_coordinates(input_folder,</span> <span class="pre">num_img,</span> <span class="pre">threshold=50)</span></code></p>
+<p><strong>Description:</strong> Processes and filters coordinates from the skeleton image.</p>
+<p><strong>Example usage:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyrootmancer.scripts.landmark_extraction</span> <span class="kn">import</span> <span class="n">LandmarkExtraction</span>
+
+<span class="n">landmark_extractor</span> <span class="o">=</span> <span class="n">LandmarkExtraction</span><span class="p">()</span>
+<span class="n">input_folder</span> <span class="o">=</span> <span class="s1">&#39;data/predictions_clean&#39;</span>
+<span class="n">num_img</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">bottom_coordinates</span> <span class="o">=</span> <span class="n">landmark_extractor</span><span class="o">.</span><span class="n">get_bottom_coordinates</span><span class="p">(</span><span class="n">input_folder</span><span class="p">,</span> <span class="n">num_img</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Bottom coordinates: </span><span class="si">{</span><span class="n">bottom_coordinates</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>### Detecting Roots</p>
+<p><code class="docutils literal notranslate"><span class="pre">detect(chosen_images,</span> <span class="pre">input_folder,</span> <span class="pre">test_folder,</span> <span class="pre">num_img)</span></code></p>
+<p><strong>Description:</strong> Detects roots in the images and overlays results.</p>
+<p><strong>Example usage:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyrootmancer.scripts.landmark_extraction</span> <span class="kn">import</span> <span class="n">LandmarkExtraction</span>
+
+<span class="n">landmark_extractor</span> <span class="o">=</span> <span class="n">LandmarkExtraction</span><span class="p">()</span>
+<span class="n">chosen_images</span> <span class="o">=</span> <span class="s1">&#39;example_image.jpg&#39;</span>
+<span class="n">input_folder</span> <span class="o">=</span> <span class="s1">&#39;data/predictions_clean&#39;</span>
+<span class="n">test_folder</span> <span class="o">=</span> <span class="s1">&#39;data/test&#39;</span>
+<span class="n">num_img</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">result_img</span> <span class="o">=</span> <span class="n">landmark_extractor</span><span class="o">.</span><span class="n">detect</span><span class="p">(</span><span class="n">chosen_images</span><span class="p">,</span> <span class="n">input_folder</span><span class="p">,</span> <span class="n">test_folder</span><span class="p">,</span> <span class="n">num_img</span><span class="p">)</span>
+<span class="n">cv2</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="s1">&#39;Result Image&#39;</span><span class="p">,</span> <span class="n">result_img</span><span class="p">)</span>
+<span class="n">cv2</span><span class="o">.</span><span class="n">waitKey</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">cv2</span><span class="o">.</span><span class="n">destroyAllWindows</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="instance-segmentation-functions">
+<h2>Instance Segmentation Functions<a class="headerlink" href="#instance-segmentation-functions" title="Link to this heading"></a></h2>
+<p>The instance segmentation functions are located in <code class="docutils literal notranslate"><span class="pre">scripts/instance_segmentation.py</span></code>.</p>
+<p>### Testing Overlaying</p>
+<p><code class="docutils literal notranslate"><span class="pre">test_overlaying(image_path,</span> <span class="pre">output_folder,</span> <span class="pre">model_folder,</span> <span class="pre">model_name)</span></code></p>
+<p><strong>Description:</strong> Overlays a predicted mask on a randomly selected original image and displays the result.</p>
+<p><strong>Example usage:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyrootmancer.scripts.instance_segmentation</span> <span class="kn">import</span> <span class="n">InstanceSegmentation</span>
+
+<span class="n">segmenter</span> <span class="o">=</span> <span class="n">InstanceSegmentation</span><span class="p">()</span>
+<span class="n">image_path</span> <span class="o">=</span> <span class="s1">&#39;path_to_image.jpg&#39;</span>
+<span class="n">output_folder</span> <span class="o">=</span> <span class="s1">&#39;data/output&#39;</span>
+<span class="n">model_folder</span> <span class="o">=</span> <span class="s1">&#39;models&#39;</span>
+<span class="n">model_name</span> <span class="o">=</span> <span class="s1">&#39;model.h5&#39;</span>
+<span class="n">blended_img</span> <span class="o">=</span> <span class="n">segmenter</span><span class="o">.</span><span class="n">test_overlaying</span><span class="p">(</span><span class="n">image_path</span><span class="p">,</span> <span class="n">output_folder</span><span class="p">,</span> <span class="n">model_folder</span><span class="p">,</span> <span class="n">model_name</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>### Returning Original Size Image</p>
+<p><code class="docutils literal notranslate"><span class="pre">return_original_size_image(image_path,</span> <span class="pre">output_folder)</span></code></p>
+<p><strong>Description:</strong> Resizes predicted masks to match the size of the original images and overlays them.</p>
+<p><strong>Example usage:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyrootmancer.scripts.instance_segmentation</span> <span class="kn">import</span> <span class="n">InstanceSegmentation</span>
+
+<span class="n">segmenter</span> <span class="o">=</span> <span class="n">InstanceSegmentation</span><span class="p">()</span>
+<span class="n">image_path</span> <span class="o">=</span> <span class="s1">&#39;path_to_predicted_image.jpg&#39;</span>
+<span class="n">output_folder</span> <span class="o">=</span> <span class="s1">&#39;data/output&#39;</span>
+<span class="n">resized_img</span> <span class="o">=</span> <span class="n">segmenter</span><span class="o">.</span><span class="n">return_original_size_image</span><span class="p">(</span><span class="n">image_path</span><span class="p">,</span> <span class="n">output_folder</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>### Overlaying for Folder</p>
+<p><code class="docutils literal notranslate"><span class="pre">overlay(test_folder,</span> <span class="pre">predicted_folder,</span> <span class="pre">output_folder)</span></code></p>
+<p><strong>Description:</strong> Overlays predicted masks onto test images for a folder.</p>
+<p><strong>Example usage:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyrootmancer.scripts.instance_segmentation</span> <span class="kn">import</span> <span class="n">InstanceSegmentation</span>
+
+<span class="n">segmenter</span> <span class="o">=</span> <span class="n">InstanceSegmentation</span><span class="p">()</span>
+<span class="n">test_folder</span> <span class="o">=</span> <span class="s1">&#39;data/test&#39;</span>
+<span class="n">predicted_folder</span> <span class="o">=</span> <span class="s1">&#39;data/predictions_clean&#39;</span>
+<span class="n">output_folder</span> <span class="o">=</span> <span class="s1">&#39;data/output&#39;</span>
+<span class="n">segmenter</span><span class="o">.</span><span class="n">overlay</span><span class="p">(</span><span class="n">test_folder</span><span class="p">,</span> <span class="n">predicted_folder</span><span class="p">,</span> <span class="n">output_folder</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>### Returning Original Size for Folder</p>
+<p><code class="docutils literal notranslate"><span class="pre">return_original_size_folder(test_folder,</span> <span class="pre">output_folder)</span></code></p>
+<p><strong>Description:</strong> Resizes predicted masks to match the size of the original images and overlays them for all images in a folder.</p>
+<p><strong>Example usage:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyrootmancer.scripts.instance_segmentation</span> <span class="kn">import</span> <span class="n">InstanceSegmentation</span>
+
+<span class="n">segmenter</span> <span class="o">=</span> <span class="n">InstanceSegmentation</span><span class="p">()</span>
+<span class="n">test_folder</span> <span class="o">=</span> <span class="s1">&#39;data/test&#39;</span>
+<span class="n">output_folder</span> <span class="o">=</span> <span class="s1">&#39;data/output&#39;</span>
+<span class="n">segmenter</span><span class="o">.</span><span class="n">return_original_size_folder</span><span class="p">(</span><span class="n">test_folder</span><span class="p">,</span> <span class="n">output_folder</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="conclusion">
+<h2>Conclusion<a class="headerlink" href="#conclusion" title="Link to this heading"></a></h2>
+<p>Follow the provided examples to utilize the functions effectively in your projects. Ensure that the necessary files are placed in the correct directories and the required dependencies are installed. For any issues, refer to the troubleshooting section in the respective function’s documentation.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="modules.html" class="btn btn-neutral float-right" title="Features" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Jakub Cyba, Simona Dimitrova, Cedric Verhaegh, Thomas Picardo, Samuel.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

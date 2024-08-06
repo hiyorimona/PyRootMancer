@@ -1,0 +1,38 @@
+from setuptools import setup, find_packages
+
+setup(
+    name='PyRootMancer',
+    version='0.1.1',
+    author='Jakub Cyba, Simona Dimitrova, Thomas Pichardo, Cedric Verhaegh, Samuel Antonio',
+    author_email='your.email@example.com',
+    description='Summon the secrets of the soil with PyRootMancer – the enchanting way to master root phenotyping.',
+    long_description=open('README.md').read(),
+    long_description_content_type='text/markdown',
+    url='https://github.com/BredaUniversityADSAI/2023-24d-fai2-adsai-group-cv5',
+    packages=find_packages(),
+    install_requires=[
+        'python>=3.10.0,<=3.10.14',
+        'tensorflow-io-gcs-filesystem==0.30.0; sys_platform == "linux" or sys_platform == "win32"',
+        'tensorflow==2.16.1; sys_platform == "linux" or sys_platform == "win32"',
+        'tensorflow-intel==2.16.1; sys_platform == "win32"',
+        'opencv-python==4.9.0.80',
+        'pandas==2.2.2',
+        'patchify==0.2.3',
+        'matplotlib==3.8.4',
+        'scikit-image==0.23.2',
+        'skan==0.11.1',
+        'numpy==1.23.5',
+        'pytest==8.2.0',
+        'pytest-mock==3.14.0',
+        'sphinx==7.3.7',
+        'coverage==7.5.3',
+        'sphinx_rtd_theme==2.0.0',
+        'networkx==3.3',
+    ],
+    classifiers=[
+        'Programming Language :: Python :: 3',
+        'License :: OSI Approved :: MIT License',
+        'Operating System :: OS Independent',
+    ],
+    python_requires='>=3.9',
+)
