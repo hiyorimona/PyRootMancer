@@ -21,8 +21,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 
 USER appuser
 
-COPY ./api ./api
-COPY ./PyRootMancer ./api/src
+COPY ./PyRootMancer/src
 
 EXPOSE 8000
 
