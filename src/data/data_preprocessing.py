@@ -46,7 +46,20 @@ class DataPipelineSetup:
         try:
             # Define the file name and extraction folder based on the keyword
             missing_files_train_str = (
-                '000', '008', '019', '023', '030', '031', '032', '033', '034', '035', '036', '038', '039', '040'
+                '000',
+                '008',
+                '019',
+                '023',
+                '030',
+                '031',
+                '032',
+                '033',
+                '034',
+                '035',
+                '036',
+                '038',
+                '039',
+                '040',
             )
 
             file_name = os.path.join(folder_config.get("raw_data_folder"), f"{keyword}.zip")
@@ -84,16 +97,10 @@ class DataPipelineSetup:
                     for file in files:
                         if file.lower().endswith(('.tiff', '.tif')):
                             if 'shoot_mask' in file.lower():
-                                if file.lower().startswith(
-                                    missing_files_train_str
-                                ):
+                                if file.lower().startswith(missing_files_train_str):
                                     continue
-                                destination_folder = folder_config.get(
-                                    "shoot_folder_unpatched"
-                                )
-                                image_path = os.path.join(
-                                    os.getcwd(), root, file
-                                )
+                                destination_folder = folder_config.get("shoot_folder_unpatched")
+                                image_path = os.path.join(os.getcwd(), root, file)
                                 shoot_masks += 1
                                 os.rename(
                                     image_path,
@@ -102,41 +109,27 @@ class DataPipelineSetup:
                             elif 'occluded_root_mask' in file.lower():
                                 continue
                             elif 'root_mask' in file.lower():
-                                if file.lower().startswith(
-                                    missing_files_train_str
-                                ):
+                                if file.lower().startswith(missing_files_train_str):
                                     continue
-                                destination_folder = folder_config.get(
-                                    "root_folder_unpatched"
-                                )
-                                image_path = os.path.join(
-                                    os.getcwd(), root, file
-                                )
+                                destination_folder = folder_config.get("root_folder_unpatched")
+                                image_path = os.path.join(os.getcwd(), root, file)
                                 root_masks += 1
                                 os.rename(
                                     image_path,
                                     os.path.join(destination_folder, file),
                                 )
 
-                logging.info(
-                    f'{root_masks} tiff images class root in {extraction_folder} zip folder'
-                )
-                logging.info(
-                    f'{shoot_masks} tiff images class shoot in {extraction_folder} zip folder'
-                )
+                logging.info(f'{root_masks} tiff images class root in {extraction_folder} zip folder')
+                logging.info(f'{shoot_masks} tiff images class shoot in {extraction_folder} zip folder')
                 logging.info('Done!')
 
             elif keyword == "train":
                 for root, dirs, files in os.walk(extraction_folder):
                     for file in files:
                         if file.lower().endswith(('.png', '.jpg', '.jpeg')):
-                            if file.lower().startswith(
-                                missing_files_train_str
-                            ):
+                            if file.lower().startswith(missing_files_train_str):
                                 continue
-                            destination_folder = folder_config.get(
-                                "images_folder_unpatched"
-                            )
+                            destination_folder = folder_config.get("images_folder_unpatched")
                             image_path = os.path.join(os.getcwd(), root, file)
                             images += 1
                             os.rename(
@@ -144,9 +137,7 @@ class DataPipelineSetup:
                                 os.path.join(destination_folder, file),
                             )
 
-                logging.info(
-                    f'{images} png images in {extraction_folder} zip folder'
-                )
+                logging.info(f'{images} png images in {extraction_folder} zip folder')
                 logging.info('Done!')
 
             elif keyword == "test":
@@ -157,14 +148,10 @@ class DataPipelineSetup:
                             test_images += 1
                             os.rename(
                                 image_path,
-                                os.path.join(
-                                    folder_config.get("test_folder"), file
-                                ),
+                                os.path.join(folder_config.get("test_folder"), file),
                             )
 
-                logging.info(
-                    f'{test_images} png images in {extraction_folder} zip folder'
-                )
+                logging.info(f'{test_images} png images in {extraction_folder} zip folder')
                 logging.info('Done!')
 
                 shutil.rmtree(extraction_folder)  # Remove the extraction folder after processing
@@ -188,8 +175,11 @@ class DataPipelineSetup:
         try:
             # Get a list of image files in the folder
             image_files = [file for file in os.listdir(folder) if file.lower().endswith(('.tif', '.png'))]
-            loop = tq.tqdm(enumerate(image_files), total=len(image_files),
-                           bar_format='{l_bar}%s{bar}%s{r_bar}' % ('\033[38;2;70;130;180m', '\033[0m'))
+            loop = tq.tqdm(
+                enumerate(image_files),
+                total=len(image_files),
+                bar_format='{l_bar}%s{bar}%s{r_bar}' % ('\033[38;2;70;130;180m', '\033[0m'),
+            )
 
             for _, file in loop:
                 image_path = os.path.join(folder, file)
@@ -201,8 +191,8 @@ class DataPipelineSetup:
                             if image.shape[:2] != (2731, 2752):
                                 normalized_image = cv2.normalize(
                                     image[
-                                        75: image.shape[0] - 200,
-                                        750: image.shape[1] - 700,
+                                        75 : image.shape[0] - 200,
+                                        750 : image.shape[1] - 700,
                                     ],
                                     None,
                                     0,
@@ -211,9 +201,7 @@ class DataPipelineSetup:
                                 )
                                 cv2.imwrite(image_path, normalized_image)
                         else:
-                            logging.error(
-                                f"Failed to read PNG image: {image_path}"
-                            )
+                            logging.error(f"Failed to read PNG image: {image_path}")
 
                     elif image_path.lower().endswith('tif'):
                         # Read and crop the image if it's a TIFF file
@@ -223,25 +211,19 @@ class DataPipelineSetup:
                                 cv2.imwrite(
                                     image_path,
                                     mask[
-                                        75: mask.shape[0] - 200,
-                                        750: mask.shape[1] - 700,
+                                        75 : mask.shape[0] - 200,
+                                        750 : mask.shape[1] - 700,
                                     ],
                                 )
                         else:
-                            logging.error(
-                                f"Failed to read TIFF image: {image_path}"
-                            )
+                            logging.error(f"Failed to read TIFF image: {image_path}")
                 except Exception as e:
                     logging.error(f"Error processing file {file}: {e}")
 
-            logging.info(
-                f"Cropping completed successfully from {os.path.basename(folder)}"
-            )
+            logging.info(f"Cropping completed successfully from {os.path.basename(folder)}")
 
         except Exception as e:
-            logging.error(
-                f"An error occurred while cropping images in folder {os.path.basename(folder)}: {e}"
-            )
+            logging.error(f"An error occurred while cropping images in folder {os.path.basename(folder)}: {e}")
 
     def padder(self, image: np.ndarray) -> np.ndarray:
         """
@@ -275,8 +257,9 @@ class DataPipelineSetup:
         right_padding = width_padding - left_padding
 
         # Add the padding to the image
-        padded_image = cv2.copyMakeBorder(image, top_padding, bottom_padding, left_padding, right_padding,
-                                          cv2.BORDER_CONSTANT, value=[0, 0, 0])
+        padded_image = cv2.copyMakeBorder(
+            image, top_padding, bottom_padding, left_padding, right_padding, cv2.BORDER_CONSTANT, value=[0, 0, 0]
+        )
 
         return padded_image
 
@@ -303,8 +286,11 @@ class DataPipelineSetup:
 
             # Get a list of image files in the directory
             image_files = [file for file in os.listdir(img_dir) if file.lower().endswith(('.tif', '.png'))]
-            loop = tq.tqdm(enumerate(image_files), total=len(image_files),
-                           bar_format='{l_bar}%s{bar}%s{r_bar}' % ('\033[38;2;70;130;180m', '\033[0m'))
+            loop = tq.tqdm(
+                enumerate(image_files),
+                total=len(image_files),
+                bar_format='{l_bar}%s{bar}%s{r_bar}' % ('\033[38;2;70;130;180m', '\033[0m'),
+            )
 
             for _, image_filename in loop:
                 if image_filename.endswith((".png", ".tif")):
@@ -331,9 +317,7 @@ class DataPipelineSetup:
         except Exception as e:
             logging.error(f"Error processing {os.path.basename(img_dir)}: {e}")
         finally:
-            logging.info(
-                f"Patches for {os.path.basename(img_dir)} created and stored successfully!"
-            )
+            logging.info(f"Patches for {os.path.basename(img_dir)} created and stored successfully!")
 
 
 if __name__ == "__main__":
@@ -349,9 +333,12 @@ if __name__ == "__main__":
     processor.crop(folder_config.get("root_folder_unpatched"))  # Crop images in the unpatched root masks folder
     processor.crop(folder_config.get("shoot_folder_unpatched"))  # Crop images in the unpatched shoot masks folder
 
-    processor.img_patchify(folder_config.get("images_folder_unpatched"), folder_config.get(
-        "images_folder_patched"))  # Patchify images in the unpatched images folder
-    processor.img_patchify(folder_config.get("root_folder_unpatched"), folder_config.get(
-        "root_folder_patched"))  # Patchify images in the unpatched root masks folder
-    processor.img_patchify(folder_config.get("shoot_folder_unpatched"), folder_config.get(
-        "shoot_folder_patched"))  # Patchify images in the unpatched shoot masks folder
+    processor.img_patchify(
+        folder_config.get("images_folder_unpatched"), folder_config.get("images_folder_patched")
+    )  # Patchify images in the unpatched images folder
+    processor.img_patchify(
+        folder_config.get("root_folder_unpatched"), folder_config.get("root_folder_patched")
+    )  # Patchify images in the unpatched root masks folder
+    processor.img_patchify(
+        folder_config.get("shoot_folder_unpatched"), folder_config.get("shoot_folder_patched")
+    )  # Patchify images in the unpatched shoot masks folder

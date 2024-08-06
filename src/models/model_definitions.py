@@ -16,7 +16,7 @@ def unet_model(input_shape: Tuple[int, int, int], num_classes: int, patch_size: 
     Defines and compiles a U-Net model for image segmentation.
 
     This function creates a U-Net model architecture, which is widely used for image segmentation tasks.
-    The model consists of a contracting path to capture context and a symmetric expanding path 
+    The model consists of a contracting path to capture context and a symmetric expanding path
     that enables precise localization.
 
     Parameters:
