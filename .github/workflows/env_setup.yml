@@ -64,7 +64,7 @@ jobs:
 
 
   build-and-publish:
-    needs: [setup]
+    needs: lint-and-install
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
