@@ -64,7 +64,7 @@ jobs:
 
 
   build-and-publish:
-    if: github.event_name == 'push' && github.event.head_commit.modified && contains(github.event.head_commit.modified, 'src/pyrootmancer')
+    if: github.event_name == 'push' && github.event.head_commit.modified && contains(github.event.head_commit.modified, 'src')
     needs: [setup]
     runs-on: ubuntu-latest
     steps:
