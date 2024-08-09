@@ -23,6 +23,7 @@ env:
 jobs:
   Environment-SetUp:
     runs-on: ubuntu-latest
+    environment: Production
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
