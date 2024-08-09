@@ -29,6 +29,19 @@ networkx = "^3.3"
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
+[tool.bumpversion]
+current_version = "0.2.0"
+commit = true
+tag = true
+
+[tool.bumpversion.files]
+"src/__init__.py" = {}
+
+[tool.bumpversion.commit]
+message = "Bump version: {current_version} → {new_version}"
+
+[tool.bumpversion.tag]
+name = "v{new_version}"
 
 [tool.coverage.run]
 omit = ["tests/migrations/*"]
