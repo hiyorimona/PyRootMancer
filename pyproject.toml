@@ -4,7 +4,7 @@ version = "0.2.0"
 description = "Summon the secrets of the soil with PyRootMancer - the enchanting way to master root phenotyping."
 authors = ["Jakub Cyba, Simona Dimitrova, Thomas Pichardo, Cedric Verhaegh, Samuel Antonio"]
 readme = "README.md"
-packages = [{include ="pyrootmancer", from = "src"}]
+packages = [{include ="src"}]
 
 [tool.poetry.dependencies]
 python = ">3.10.0, <=3.10.14"
