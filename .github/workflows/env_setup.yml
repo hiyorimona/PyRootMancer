@@ -13,24 +13,32 @@ env:
 
 
 jobs:
-  SetUp-Python:
+  SetUp:
     runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python 3.10
+
         uses: actions/setup-python@v3
         with:
           python-version: "3.10"
       - name: Cache pip
+
         uses: actions/cache@v3
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
+              - uses: actions/checkout@v4
+            
+     
 
   lint-and-install:
-    needs: setup-python
+    needs: setup
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -53,7 +61,7 @@ jobs:
           flake8 src --count --exit-zero --max-complexity=10 --max-line-length=120 --statistics
 
   test-and-coverage:
-    needs: [setup-python]
+    needs: [setup]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -96,34 +104,10 @@ jobs:
           compression-level: 9
 
 
-  SetUp-Package:
-    runs-on: ubuntu-latest
-    permissions:
-      packages: write
-      contents: read
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: DockerHub login
-        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
-
-      - name: Build image
-        run: docker build . --file Dockerfile --tag $IMAGE_NAME --label "runnumber=${GITHUB_RUN_ID}"
-
-      - name: Tag Push image
-        env:
-          IMAGE_NAME: pyrootmancer-image # Replace with your image name
-          IMAGE_ID: ${{ secrets.DOCKERHUB_USERNAME }}/pyrootmancer-image # Replace with your image name
-        run: |
-          VERSION=$(echo "${GITHUB_REF##*/}" | sed -e 's/^v//')
-          if [[ "$GITHUB_REF" == "refs/heads/main" ]]; then
-            VERSION="latest"
-          fi
-          docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
-          docker push $IMAGE_ID:$VERSION
 
   build-and-publish:
     if: github.event_name == 'push' && github.event.head_commit.modified && contains(github.event.head_commit.modified, 'src/pyrootmancer')
+    needs: [setup]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -137,6 +121,28 @@ jobs:
       - name: Bump version and install dependencies
         run: |
           bump2version patch --config-file ./pyproject.toml
+          
+          
+
+      - name: DockerHub login
+        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+      - name: Build image
+        run: docker build . --file Dockerfile --tag $IMAGE_NAME --label "runnumber=${GITHUB_RUN_ID}"
+
+      - name: Tag Push image
+        env:
+          IMAGE_NAME: pyrootmancer-image
+          IMAGE_ID: ${{ secrets.DOCKERHUB_USERNAME }}/pyrootmancer-image #
+        run: |
+          VERSION=$(echo "${GITHUB_REF##*/}" | sed -e 's/^v//')
+          if [[ "$GITHUB_REF" == "refs/heads/main" ]]; then
+            VERSION="latest"
+          fi
+          docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
+
+
       - name: Build and Publish
         run: |
           cd src/pyrootmancer
@@ -144,3 +150,4 @@ jobs:
           poetry publish --build
         env:
           POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_API_TOKEN }}
+
