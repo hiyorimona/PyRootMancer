@@ -1,53 +1,27 @@
-name: Production
 
-on:
-  push:
-    branches:
-      - main
-    tags:
-      - v*
-  workflow_dispatch:
 
-permissions:
-  contents: write
-  pages: write
-  id-token: write
+- name: Run tests with pytest
+  run: poetry run pytest --cov=pyrootmancer --cov-report=xml
 
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
-env:
-  IMAGE_NAME: pyrootmancer-image
-  IMAGE_ID: ${{ secrets.DOCKERHUB_USERNAME }}/pyrootmancer-image
+- name: Generate code coverage report
+  uses: actions/upload-artifact@v3
+  with:
+    name: coverage-report
+    path: coverage.xml
 
-jobs:
-  Environment-SetUp:
-    runs-on: ubuntu-latest
-    environment: Production
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        id: python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-        with:
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-          installer-parallel: true
-      - name: Load cached venv
-        id: cached-poetry-dependencies
-        uses: actions/cache@v3
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
-      - name: Install dependencies
-        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: poetry install --no-interaction --no-root
-      - name: Install project
-        run: poetry install --no-interaction
+- name: Send Slack notification on failure
+  if: failure()
+  uses: slackapi/slack-github-action@v1.23.0
+  with:
+    payload: |
+      {
+        "channel": "#build-notifications",
+        "attachments": [
+          {
+            "color": "danger",
+            "text": "Build failed for ${{ github.repository }} on branch ${{ github.ref }}."
+          }
+        ]
+      }
+  env:
+    SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
