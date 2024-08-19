@@ -60,18 +60,30 @@ jobs:
         run: poetry install --no-interaction
 
       - name: Build and push Docker image
-        run: | 
-          docker build . --file Dockerfile --tag $IMAGE_NAME --label "runnumber=${GITHUB_RUN_ID}"
-          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-
-          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$IMAGE_NAME
-          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+        run: |
+          docker build . --file Dockerfile --tag $IMAGE_NAME --label "runnumber=${GITHUB_RUN_ID}"          
+          echo "${{ secrets.GITHUB_TOKEN}}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          
+          echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+          
+          IMAGE_ID_GHCR=ghcr.io/${{ github.repository_owner }}/$IMAGE_NAME
+          IMAGE_ID_GHCR=$(echo $IMAGE_ID_GHCR | tr '[A-Z]' '[a-z]')
+          
+          IMAGE_ID_DOCKERHUB=${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME
+          IMAGE_ID_DOCKERHUB=$(echo $IMAGE_ID_DOCKERHUB | tr '[A-Z]' '[a-z]')
           
           VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
           
           [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')          
           [ "$VERSION" == "main" ] && VERSION=latest
-          echo IMAGE_ID=$IMAGE_ID
+          echo IMAGE_ID_GHCR=$IMAGE_ID_GHCR
+          echo IMAGE_ID_DOCKERHUB=$IMAGE_ID_DOCKERHUB
           echo VERSION=$VERSION
-          docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
-          docker push $IMAGE_ID:$VERSION
+          
+          # Tag and push to GitHub Container Registry
+          docker tag $IMAGE_NAME $IMAGE_ID_GHCR:$VERSION
+          docker push $IMAGE_ID_GHCR:$VERSION
+          
+          # Tag and push to Docker Hub
+          docker tag $IMAGE_NAME $IMAGE_ID_DOCKERHUB:$VERSION
+          docker push $IMAGE_ID_DOCKERHUB:$VERSION
