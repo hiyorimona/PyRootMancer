@@ -25,6 +25,7 @@ env:
 jobs:
   SetUp:
     runs-on: ubuntu-latest
+    environment: Production
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -53,42 +54,47 @@ jobs:
 
       - name: Install dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: poetry install --no-interaction --no-root
+        run: |
+          poetry install --no-interaction --no-root
+          poetry install --no-interaction
 
-      - name: Install project
-        run: poetry install --no-interaction
 
   Build-and-Publish:
     runs-on: ubuntu-latest
+    environment: Production
     needs: SetUp
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Build and push Docker image
+      - name: Build Docker image
+        run: docker build . --file Dockerfile --tag $IMAGE_NAME --label "runnumber=${GITHUB_RUN_ID}"
+
+      - name: Login
         run: |
-          docker build . --file Dockerfile --tag $IMAGE_NAME --label "runnumber=${GITHUB_RUN_ID}"          
-          echo "${{ secrets.GITHUB_TOKEN}}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-          
+
+      - name: Prepare image tags
+        run: |
           IMAGE_ID_GHCR=ghcr.io/${{ github.repository_owner }}/$IMAGE_NAME
           IMAGE_ID_GHCR=$(echo $IMAGE_ID_GHCR | tr '[A-Z]' '[a-z]')
-          
+
           IMAGE_ID_DOCKERHUB=${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME
           IMAGE_ID_DOCKERHUB=$(echo $IMAGE_ID_DOCKERHUB | tr '[A-Z]' '[a-z]')
-          
+
           VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
-          
-          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')          
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
           [ "$VERSION" == "main" ] && VERSION=latest
-          echo IMAGE_ID_GHCR=$IMAGE_ID_GHCR
-          echo IMAGE_ID_DOCKERHUB=$IMAGE_ID_DOCKERHUB
-          echo VERSION=$VERSION
-          
-          # Tag and push to GitHub Container Registry
+
+          echo "IMAGE_ID_GHCR=$IMAGE_ID_GHCR" >> $GITHUB_ENV
+          echo "IMAGE_ID_DOCKERHUB=$IMAGE_ID_DOCKERHUB" >> $GITHUB_ENV
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Tag-and-push
+        run: |
           docker tag $IMAGE_NAME $IMAGE_ID_GHCR:$VERSION
           docker push $IMAGE_ID_GHCR:$VERSION
           
-          # Tag and push to Docker Hub
           docker tag $IMAGE_NAME $IMAGE_ID_DOCKERHUB:$VERSION
           docker push $IMAGE_ID_DOCKERHUB:$VERSION
